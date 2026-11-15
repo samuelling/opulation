@@ -15,11 +15,11 @@ with sync_playwright() as p:
         pg = c.new_page(); pg.on('console', lambda m, r=role: print(f'  [{r}] {m.text}') if m.type in ('error', 'warning') else None)
         pg.on('pageerror', lambda e, r=role: print(f'  [{r}] PAGE ERROR {e}'))
         pg.goto(URL); pg.wait_for_function('window.__opul')
-        pg.click('#modeSight'); pg.click('#roleFemale' if role == 'female' else '#roleMale'); pg.fill('#pass', her_pass if role == 'female' else his_pass)
+        pg.click('#modeSong' if os.environ.get('MODE') == 'song' else '#modeSight'); pg.click('#roleFemale' if role == 'female' else '#roleMale'); pg.fill('#pass', her_pass if role == 'female' else his_pass)
         pages[role] = pg
     pages['female'].click('#go'); time.sleep(1.5); pages['male'].click('#go')
     t0 = time.time(); last = None; result = 'timeout'
-    while time.time() - t0 < 90:
+    while time.time() - t0 < (150 if os.environ.get('MODE') == 'song' else 90):
         for a, z in (('female', 'male'), ('male', 'female')):
             url = pages[a].evaluate('__opul.card()')
             if url: pages[z].evaluate('(u) => __opul.see(u)', url)
@@ -31,7 +31,9 @@ with sync_playwright() as p:
         if 'kicks' in st['male']['caption'] or 'passphrase' in st['male']['todo']: result = 'he was rejected: ' + st['male']['caption']; break
         if SHOT and not shot_done and time.time() - t0 > SHOT:
             shot_done = True
-            for r in pages: pages[r].screenshot(path=f'/tmp/sight-{r}-{SHOT:g}s.png')
+            import base64
+            for r, cid in (('male', 'mNet'), ('female', 'fNet')):   # just the brain canvases: a full screenshot stalls the loop
+                u = pages[r].evaluate(f"document.getElementById('{cid}').toDataURL('image/png')"); open(f'/tmp/{r}-brain-{SHOT:g}s.png', 'wb').write(base64.b64decode(u.split(',')[1]))
         time.sleep(0.12)
     print(f'{time.time() - t0:5.1f}s  RESULT: {result}')
     if 'nest' in result:

@@ -27,13 +27,16 @@ export async function ritual(S, parts, herPass, hisPass) {
   const heard = []; let done = false;
   const det = new Song.SongDetector(M, FS, () => {}); det.onTrain = (s, n) => { heard.push(...s); if (n >= Song.TRAINS) { L.advance(heard.slice(), true); done = true; } else L.advance(heard.slice(), false); };
   for (let i = 0; i < air.length; i += 2048) det.push(air.subarray(i, i + 2048)); det.flush(); if (!done) L.advance(heard.slice(), true);
+  // she never sings: her verdict, and later her half of the link, are in her eyes, read by his back camera
   const verdict = L.verdict;
-  const vb = over(verdict === 'accept' ? P.accept(her.sid, keys) : P.kick(her.sid)); const hv = vb && P.parseVerdict(vb, seen.sid, him.keys);
+  const vm = watch(V.pair(verdict === 'accept' ? P.accept(her.sid, keys) : P.kick(her.sid)), V.MAGIC.ANSWER, 'eyes'); const hv = vm && P.parseVerdict(V.unpair(vm.bytes)[0], seen.sid, him.keys);
   if (hv !== 'accept') return `${verdict}/${hv}`;
   const gb = over(P.gift(seen.sid, him.keys, { kind: 'text', text: 'a fig, ripe' })); const g = gb && P.parseGift(gb, her.sid, keys);
-  // the link details, sung both ways (a stand-in blob of the real size)
+  // the link details: his sung, hers in her eyes (a stand-in blob of the real size)
   const ob = over(P.sealFixed(P.T.OFFER, seen.sid, him.keys, new Uint8Array(82).fill(7))); const offer = ob && P.unsealFixed(P.T.OFFER, ob, her.sid, keys);
   if (!offer || offer.length !== 82) return 'offer lost';
+  const am = watch(V.pair(P.accept(her.sid, keys), P.sealFixed(P.T.ANSWER, her.sid, keys, new Uint8Array(82).fill(9))), V.MAGIC.ANSWER, 'eyes');
+  const ans = am && P.unsealFixed(P.T.ANSWER, V.unpair(am.bytes)[1], seen.sid, him.keys); if (!ans || ans.length !== 82) return 'answer lost';
   return g ? 'mated: ' + g.text : 'gift lost';
 }
 // by sight and song: each loop of cards is read through a simulated front camera (turned head to tail, blurred,
