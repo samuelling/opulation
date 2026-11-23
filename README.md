@@ -2,7 +2,7 @@
 
 Two phones may only share a secret once they have courted like fruit flies.
 
-**Play:** https://samuelling.github.io/Opulation/ (GitHub Pages from `main`, root). Use two phones. One chooses *Court* (he sends), the other *Be courted* (she receives), and both type the same passphrase: their species.
+**Play:** https://linglab.org/opulation/ (GitHub Pages from `main`, root). Use two phones. One chooses *Court* (he sends), the other *Be courted* (she receives), and both type the same passphrase: their species.
 
 ## How to court
 
@@ -49,7 +49,7 @@ Every sound turn is courtship song, never a modem screech (`js/flysong.js`). A t
 
 ## Her brain, and his
 
-- **Her ears and song pathway** are [FlyHarp](https://samuelling.github.io/FlyHarp/)'s Tonnectome network: 4,222 neurons and 1.35 M synapses from FlyWire v783 (Johnston's organ, AMMC, saddle, wedge, AVLP and on), with FlyHarp's antenna filterbank and rate dynamics. It is not trained or fit; wiring and transmitter signs are measured, gains and time constants set by hand.
+- **Her ears and song pathway** are [FlyHarp](https://linglab.org/flyharp/)'s Tonnectome network: 4,222 neurons and 1.35 M synapses from FlyWire v783 (Johnston's organ, AMMC, saddle, wedge, AVLP and on), with FlyHarp's antenna filterbank and rate dynamics. It is not trained or fit; wiring and transmitter signs are measured, gains and time constants set by hand.
 - **OPUlation runs it in integers** (Q16 fixed point, `js/female.js`). Every constant that needs floating point is frozen in `data/female-model.json` by `tools/make-model.mjs`, so two phones, or Swift and JavaScript, compute the same brain bit for bit (`data/vectors.json`).
 - **She is individual.** Each neuron's gain varies by up to ±12.5%, drawn from a seed that both phones derive from the session key. So both phones hold the same female only when the passphrases match. His phone runs her too, and shows what she should be feeling while he sings.
 - **Her receptivity** reads the mean activity of the 32 cells in the AVLP, PVLP and wedge that respond most to pulse song. vpoEN, the AVLP neuron that responds to song and drives vaginal plate opening in real flies, is in the network and marked. In this untrained model it barely responds, so it is shown but not used.
