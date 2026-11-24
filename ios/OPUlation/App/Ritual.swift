@@ -114,18 +114,20 @@ import AVFoundation
     }
     /** play his song and step his circuit with it */
     private func sing(_ x: [Float], _ sch: KeySong.Schedule, _ D: BrainData) async {
-        let start = Date(); var pi = 0, last = 0.0
+        final class Clock: @unchecked Sendable { var pi = 0, last = 0.0; let start = Date() }
+        let clock = Clock(), tick = D.M.song.tick
         let timer = Timer.scheduledTimer(withTimeInterval: 1 / 60, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self, let m = self.male else { return }
-                let t = Date().timeIntervalSince(start), tick = D.M.song.tick; var pulse = false
-                while pi < sch.pulses.count && Double(sch.pulses[pi].t) * tick <= t { pi += 1; pulse = true }
+                let t = Date().timeIntervalSince(clock.start); var pulse = false
+                while clock.pi < sch.pulses.count && Double(sch.pulses[clock.pi].t) * tick <= t { clock.pi += 1; pulse = true }
                 let hum = sch.hums.contains { t >= Double($0.t0) * tick && t < Double($0.t1) * tick }
-                m.step(max(0.001, t - last), sees: 1, tastes: 0.4, singing: true, pulse: pulse, hum: hum); last = t; self.maleTick &+= 1
+                m.step(max(0.001, t - clock.last), sees: 1, tastes: 0.4, singing: true, pulse: pulse, hum: hum); clock.last = t; self.maleTick &+= 1
             }
         }
+        stopListening(); let audio = self.audio
         await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
-            do { stopListening(); try audio.play(x) { c.resume() } } catch { c.resume() }
+            do { try audio.play(x) { c.resume() } } catch { c.resume() }
         }
         timer.invalidate()
     }

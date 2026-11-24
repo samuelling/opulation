@@ -49,7 +49,7 @@ public final class FemaleBrain {
     let w: [Int64], tierAlpha: [Int64], p: [Int64]
     public var V: [Int64], r: [Int64]; var acc: [Int64], jA: [Int64]
     public init(_ D: BrainData, pers: [UInt8]) {
-        self.D = D; let meta = D.meta, M = D.M; N = meta.n; nJ = meta.tiers[0]; let Q: Int64 = 1 << 16
+        self.D = D; let meta = D.meta, M = D.M, N = meta.n, nJ = meta.tiers[0]; self.N = N; self.nJ = nJ; let Q: Int64 = 1 << 16
         let sq: [Int64] = meta.sign.map { s in
             let key = s == 1 ? "1" : s == -1 ? "-1" : s == 0.3 ? "0.3" : String(s)
             return M.signQ8[key] ?? (s > 0 ? 256 : s < 0 ? -256 : 0) }
@@ -59,7 +59,7 @@ public final class FemaleBrain {
         var ta: [Int64] = []; for (t, n) in meta.tiers.enumerated() { ta += [Int64](repeating: M.alpha[t], count: n) }; tierAlpha = ta
         var p = [Int64](repeating: Q, count: N)
         for i in nJ..<N { p[i] = Q - M.personality + (Int64(Int(pers[2 * i]) | Int(pers[2 * i + 1]) << 8) % (2 * M.personality + 1)) }
-        self.p = p; V = [Int64](repeating: 0, count: N); r = V; acc = V; jA = [Int64](repeating: 0, count: nJ)
+        self.p = p; let z = [Int64](repeating: 0, count: meta.n); V = z; r = z; acc = z; jA = [Int64](repeating: 0, count: meta.tiers[0])
     }
     public func reset() { for i in 0..<N { V[i] = 0; r[i] = 0 }; for j in 0..<nJ { jA[j] = 0 } }
     /** one 5 ms antenna frame (Q16 ints) */

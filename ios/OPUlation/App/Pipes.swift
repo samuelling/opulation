@@ -3,6 +3,7 @@
 //   MultipeerPipe  Bluetooth + peer-to-peer Wi-Fi between two iPhones (the AirDrop machinery), no network needed
 import Foundation
 import MultipeerConnectivity
+import UIKit
 
 protocol FramePipe: AnyObject {
     var onFrame: (([UInt8]) -> Void)? { get set }
@@ -83,7 +84,6 @@ final class MultipeerPipe: NSObject, FramePipe, MCSessionDelegate, MCNearbyServi
     func send(_ b: [UInt8]) async { guard !session.connectedPeers.isEmpty else { return }; try? session.send(Data(b), toPeers: session.connectedPeers, with: .reliable) }
     func close() { advertiser?.stopAdvertisingPeer(); browser?.stopBrowsingForPeers(); session.disconnect() }
 }
-import UIKit
 enum UIDeviceName { static var short: String { "OPUlation-" + String(UUID().uuidString.prefix(4)) } }
 
 /** a Session over a pipe: sealed control messages, and the nest's items (same framing as js/link.js) */

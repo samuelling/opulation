@@ -103,7 +103,7 @@ public enum KeySong {
         public var onSong: (([Int]) -> Void)?, onTrain: (([Int], Int) -> Void)?, onPulse: (() -> Void)?
         public init(_ M: BrainData.Model, sampleRate: Double) {
             fs = sampleRate; w = 2 * .pi * M.song.pulseHz * KeySong.up / sampleRate; wh = 2 * .pi * M.song.sineHz * KeySong.up / sampleRate
-            L = max(4, Int((0.002 * sampleRate).rounded())); bi = .init(repeating: 0, count: L); bq = bi; hi = bi; hq = bi
+            let l = max(4, Int((0.002 * sampleRate).rounded())), z = [Double](repeating: 0, count: l); L = l; bi = z; bq = z; hi = z; hq = z
             ipiMs = M.song.ipiTicks.map { Double($0) * M.song.tick }
         }
         public func push(_ x: [Float]) {

@@ -13,12 +13,12 @@ public final class MaleCircuit {
     public private(set) var a: [String: Float] = ["LC10a": 0, "vAB3": 0, "P1": 0, "pIP10": 0, "pulse": 0, "sine": 0, "wingMN": 0]
     public init(json: Data, bin: Data) throws {
         let m = try JSONDecoder().decode(Meta.self, from: json); neurons = m.neurons; back = m.back; n = m.n; G = Float(m.G); tau = Float(m.tau)
-        let b = [UInt8](bin), E = b.count / 6; var tot = [Float](repeating: 0, count: n)
+        let b = [UInt8](bin), E = b.count / 6; var tot = [Float](repeating: 0, count: m.n)
         func u16(_ o: Int) -> Int { Int(b[o]) | Int(b[o + 1]) << 8 }
         var pre = [Int](), post = [Int](), wr = [Float](); pre.reserveCapacity(E); post.reserveCapacity(E)
         for k in 0..<E { tot[u16(6 * k + 2)] += Float(u16(6 * k + 4)) }
         for k in 0..<E { let p = u16(6 * k), q = u16(6 * k + 2); pre.append(p); post.append(q); wr.append(Float(m.neurons[p].sign) * Float(u16(6 * k + 4)) / max(1, tot[q])) }
-        self.pre = pre; self.post = post; w = wr; r = .init(repeating: 0, count: n); u = r; ext = r
+        self.pre = pre; self.post = post; w = wr; let z = [Float](repeating: 0, count: m.n); r = z; u = z; ext = z
         for (i, x) in m.neurons.enumerated() { groups[x.g, default: []].append(i) }
     }
     public static func bundled(_ bundle: Bundle = .main) throws -> MaleCircuit {

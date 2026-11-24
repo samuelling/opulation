@@ -71,7 +71,7 @@ struct RitualView: View {
             Text(ritual.caption).font(Theme.serif(17)).italic().foregroundStyle(Theme.cream)
             if !ritual.air.isEmpty { Text(ritual.air).font(.caption.monospaced()).foregroundStyle(Theme.amber) }
             if ritual.role == .female, let bits = ritual.faceBits { FaceView(bits: bits).aspectRatio(1, contentMode: .fit).clipShape(RoundedRectangle(cornerRadius: 14)) }
-            if ritual.role == .male && ritual.camera.running && ritual.stage == "orient" {
+            if ritual.role == .male && ritual.stage == "orient" {
                 CameraPreview(session: ritual.camera.session).aspectRatio(3 / 4, contentMode: .fit).clipShape(RoundedRectangle(cornerRadius: 14))
                     .overlay(alignment: .bottom) { Text(ritual.glimpse ? "He glimpses her… hold steady" : "Fill the frame with her face").font(.caption).padding(6).background(.black.opacity(0.5)).clipShape(Capsule()).padding(8) }
             }
@@ -92,10 +92,10 @@ struct FaceView: View {
             g.fill(Path(CGRect(origin: .zero, size: size)), with: .color(Color(red: 0.925, green: 0.894, blue: 0.839)))
             for E in FlyCode.eyes { g.fill(Path(ellipseIn: CGRect(x: (E.cx - E.rx) * s, y: (E.cy - E.ry) * s, width: 2 * E.rx * s, height: 2 * E.ry * s)), with: .color(Color(red: 0.784, green: 0.725, blue: 0.659))) }
             for (i, c) in FlyCode.cells.enumerated() {
-                var p = Path(); for k in 0..<6 { let a = Double(k) * .pi / 3, pt = CGPoint(x: (c.x + FlyCode.FR * cos(a)) * s, y: (c.y + FlyCode.FR * sin(a)) * s); k == 0 ? p.move(to: pt) : p.addLine(to: pt) }; p.closeSubpath()
+                var p = Path(); for k in 0..<6 { let a = Double(k) * .pi / 3, pt = CGPoint(x: (c.x + FlyCode.FR * cos(a)) * s, y: (c.y + FlyCode.FR * sin(a)) * s); if k == 0 { p.move(to: pt) } else { p.addLine(to: pt) } }; p.closeSubpath()
                 g.fill(p, with: .color(bits[i] == 1 ? Color(red: 0.353, green: 0.102, blue: 0.11) : Color(red: 0.984, green: 0.953, blue: 0.91)))
             }
-            for pl in FlyCode.inkLines() { var p = Path(); for (k, q) in pl.enumerated() { let pt = CGPoint(x: q.0 * s, y: q.1 * s); k == 0 ? p.move(to: pt) : p.addLine(to: pt) }
+            for pl in FlyCode.inkLines() { var p = Path(); for (k, q) in pl.enumerated() { let pt = CGPoint(x: q.0 * s, y: q.1 * s); if k == 0 { p.move(to: pt) } else { p.addLine(to: pt) } }
                 g.stroke(p, with: .color(Color(red: 0.165, green: 0.102, blue: 0.118)), style: StrokeStyle(lineWidth: 5 * s, lineCap: .round, lineJoin: .round)) }
             for (x, y) in FlyCode.finders { g.fill(Path(ellipseIn: CGRect(x: (x - FlyCode.finderR) * s, y: (y - FlyCode.finderR) * s, width: 2 * FlyCode.finderR * s, height: 2 * FlyCode.finderR * s)), with: .color(Color(red: 0.078, green: 0.047, blue: 0.063))) }
         }
@@ -155,7 +155,7 @@ struct NestView: View {
             HStack { Circle().fill(ritual.finished ? Theme.muted : Theme.teal).frame(width: 7, height: 7); Text(ritual.nestStatus).font(.caption).foregroundStyle(Theme.muted) }
             ForEach(Array(ritual.sys.enumerated()), id: \.offset) { Text($0.element).font(.caption).italic().foregroundStyle(Theme.muted).frame(maxWidth: .infinity) }
             ForEach(ritual.items) { it in Bubble(item: it) }
-            ForEach(ritual.progress.sorted(by: { $0.key < $1.key }), id: \.key) { k, f in ProgressView(value: f).tint(Theme.pink) }
+            ForEach(ritual.progress.sorted(by: { $0.key < $1.key }), id: \.key) { e in ProgressView(value: e.value).tint(Theme.pink) }
             if !ritual.finished {
                 HStack(spacing: 8) {
                     PhotosPicker(selection: $photos, maxSelectionCount: 10, matching: .images) { Image(systemName: "camera") }
@@ -208,7 +208,7 @@ struct HowView: View {
     ]
     var body: some View {
         NavigationStack {
-            List { ForEach(Array(steps.enumerated()), id: \.offset) { i, s in VStack(alignment: .leading, spacing: 4) { Text("\(i + 1). \(s.0)").bold(); Text(s.1).font(.callout) } } }
+            List { ForEach(Array(steps.enumerated()), id: \.offset) { e in VStack(alignment: .leading, spacing: 4) { Text("\(e.offset + 1). \(e.element.0)").bold(); Text(e.element.1).font(.callout) } } }
                 .navigationTitle("How to mate").toolbar { Button("Got it") { dismiss() } }
         }.preferredColorScheme(.dark)
     }
