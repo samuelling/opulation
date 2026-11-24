@@ -144,7 +144,7 @@ import AVFoundation
 
     // ------------------------------------------------------------ her
     private func runFemale(_ r: UUID) async {
-        guard let D = brainData else { return }
+        guard brainData != nil else { return }
         while alive(r) {
             set("orient"); notes = Array(repeating: 0, count: 64); R = 0; air = ""; done = false
             let wait = refractoryUntil - Date().timeIntervalSince1970

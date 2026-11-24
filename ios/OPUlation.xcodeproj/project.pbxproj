@@ -178,6 +178,7 @@
 				INFOPLIST_FILE = "OPUlation-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = OPUlation;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Lets you save a photo you received in the nest to your library.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "OPUlation listens for his courtship song: it is the proof that pairs the two phones. It never records or saves audio.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "He reads her face with the camera: it holds her key and room. Nothing is recorded or saved.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "OPUlation finds the other phone nearby to open your private chat directly.";
@@ -213,6 +214,7 @@
 				INFOPLIST_FILE = "OPUlation-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = OPUlation;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Lets you save a photo you received in the nest to your library.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "OPUlation listens for his courtship song: it is the proof that pairs the two phones. It never records or saves audio.";
 				INFOPLIST_KEY_NSCameraUsageDescription = "He reads her face with the camera: it holds her key and room. Nothing is recorded or saved.";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "OPUlation finds the other phone nearby to open your private chat directly.";
