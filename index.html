@@ -51,14 +51,13 @@
   <form method="dialog"><button class="x" aria-label="Close">×</button></form>
   <h2 id="howT">How to mate</h2>
   <ol>
-        <li><b>Two phones, one room.</b> Both open this page. Volume up, room quiet: the courtship song is sung out loud.</li>
-        <li><b>Agree on a passphrase out loud</b> (any short phrase, e.g. <i>fig wasp</i>). Both phones must type exactly the same thing. It's your species: a phone with a different one gets kicked.</li>
-        <li><b>Pick parts.</b> The one sending is <b>♂ Court</b>; the one receiving is <b>♀ Be courted</b>. Leave <b>Sight &amp; song</b> on, on both.</li>
-        <li><b>♀ goes first:</b> tap <i>Wait to be courted</i>, allow the camera and microphone, and turn the brightness up. Her face appears at the bottom of the screen.</li>
-        <li><b>♂ next:</b> tap <i>Begin courtship</i> and allow the camera and microphone.</li>
-        <li><b>Hold the phones screen to screen, head to tail</b> (one upside down, so each front camera sits over the other's fly), about a hand apart, and keep still. His camera reads her eyes; then he dances and sings at once: her camera reads his wing while her microphone hears his key song. She decides and answers with her eyes. About eight seconds.</li>
-        <li><b>If she accepts,</b> a private chat opens on both phones: notes, photos, files. When either of you leaves the page, you're finished and nothing is kept.</li>
-        <li><b>Won't lock?</b> More light on the screens, a little farther apart, or choose <b>Song only</b> on both: her phone lies face up and he holds his over it, back camera on her face. He sings everything; she answers with her eyes (about 45 seconds).</li>
+        <li><b>Two phones, one room,</b> both online. Both open this page. Volume up, room quiet: his song is sung out loud. (Or both use the OPUlation iPhone app; it pairs with this page too.)</li>
+        <li><b>Pick parts.</b> The one sending is <b>♂ Court</b>; the one receiving is <b>♀ Be courted</b>. No passphrase: the courtship itself is the pairing.</li>
+        <li><b>♀ goes first:</b> tap <i>Wait to be courted</i>, allow the microphone, and turn the brightness up. Her face appears: it holds her key and a room code.</li>
+        <li><b>♂ next:</b> tap <i>Begin courtship</i>, allow the camera and microphone, and fill his camera with her face until it locks.</li>
+        <li><b>Keep the phones close and quiet.</b> His phone sings a few seconds of courtship song, made from both phones' keys. Hers hears it: if it matches the keys she actually received, nobody is sitting in the middle, and she accepts.</li>
+        <li><b>If she accepts,</b> a private chat opens on both phones: notes, photos, files, end-to-end encrypted, direct between the phones when your networks allow. When either of you leaves, you're finished and nothing is kept.</li>
+        <li><b>Kicked?</b> Usually noise or distance. Move closer, quieter room, and Start over on both.</li>
       </ol>
   <form method="dialog"><button class="go">Got it</button></form>
 </dialog>
@@ -73,13 +72,6 @@
         <span class="sym">♀</span><span class="rt">Be courted</span><span class="rs">I'm receiving</span>
       </button>
     </div>
-    <div class="modes" role="radiogroup" aria-label="How you court">
-      <button id="modeSight" class="mode" role="radio" aria-checked="true"><b>Sight &amp; song</b><span>screen to screen · about 10 s</span></button>
-      <button id="modeSong" class="mode" role="radio" aria-checked="false"><b>Song only</b><span>his camera over her phone · about 45 s</span></button>
-    </div>
-    <label class="field">Shared passphrase<span class="hint">Agree on it together first; both phones type exactly the same. Short is fine.</span>
-      <input id="pass" type="password" autocomplete="off" spellcheck="false" placeholder="e.g. bromeliad at dusk">
-    </label>
     <label class="field" id="giftField">A first note <span class="hint">Optional. Sent the moment she accepts; after that you can send files and photos.</span>
       <textarea id="gift" rows="2" maxlength="200" placeholder="A secret note"></textarea>
     </label>
@@ -88,12 +80,6 @@
     
   </section>
 
-  <div id="sight" class="sight" hidden>
-    <canvas id="card" width="1000" height="1000" aria-label="Your fly, as a code the other phone reads"></canvas>
-    <p id="sightCap" class="sightcap"></p>
-    <button id="sightX" class="sightx" aria-label="Stop">×</button>
-    <video id="fcam" playsinline muted autoplay></video>
-  </div>
   <section id="ritual" hidden>
     <div id="todo" class="todo" role="status" aria-live="polite"><span class="todoK">Now</span><span id="todoT"></span></div>
     <ol id="stages" class="stages" aria-label="The ritual">
@@ -142,7 +128,7 @@
   </section>
 </main>
 <footer>
-  <p>Her ears are <a href="https://linglab.org/flyharp/">FlyHarp</a>'s Tonnectome, his eye its optic lobe. Every turn is sung as fly song; the lock underneath is CPace (a password key exchange), and the courtship is how you watch it turn. <a href="https://github.com/samuelling/Opulation">Source</a></p>
+  <p>Her ears are <a href="https://linglab.org/flyharp/">FlyHarp</a>'s Tonnectome, his eye its optic lobe. The pairing underneath is X25519 checked by his song, like Bluetooth's numeric comparison done by flies; the chat is end-to-end encrypted, direct over WebRTC when it can be, through a small relay when it can't. <a href="https://github.com/samuelling/Opulation">Source</a></p>
 </footer>
 <script type="module" src="js/app.js"></script>
 </body>

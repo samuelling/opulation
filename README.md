@@ -2,99 +2,68 @@
 
 Two phones may only share a secret once they have courted like fruit flies.
 
-**Play:** https://linglab.org/opulation/ (GitHub Pages from `main`, root). Use two phones. One chooses *Court* (he sends), the other *Be courted* (she receives), and both type the same passphrase: their species.
+**Play:** https://linglab.org/opulation/ (GitHub Pages from `main`, root). Use two phones, both online. One chooses *Court* (he sends), the other *Be courted* (she receives). There is no passphrase: the courtship itself is the pairing. An iPhone app on the same protocol is in `ios/`; it pairs with the page and, between two iPhones, also links directly over Multipeer (Bluetooth and peer-to-peer Wi-Fi, the AirDrop machinery).
 
 ## How to court
 
-1. Two phones, one quiet room, volume up. Both open the page and leave **Sight & song** on.
-2. Agree on a passphrase out loud; both type exactly the same.
-3. The sender picks **♂ Court**, the receiver **♀ Be courted**.
-4. She starts first and allows the camera and microphone. Her face appears at the bottom of her screen. Brightness up.
-5. He starts and allows the camera and microphone.
-6. Hold the phones screen to screen, head to tail (one upside down, so each front camera sits over the other's fly), about a hand apart, and keep still for about ten seconds.
-7. If she accepts, a private chat opens on both: notes, photos, files. Leaving the page ends it; nothing is kept.
+1. Two phones, one quiet room, volume up.
+2. The sender picks **♂ Court**, the receiver **♀ Be courted**.
+3. She starts first, allows the microphone and turns the brightness up. Her face appears: it holds her key and a room code.
+4. He starts, allows the camera and microphone, and fills his camera with her face until it locks.
+5. Keep the phones close and quiet. His phone sings about four seconds of courtship song; hers judges it.
+6. If she accepts, a private chat opens on both: notes, photos, files. Leaving ends it; nothing is kept.
 
-**Song only** is the slower fallback: her phone lies face up and he holds his over it, back camera on her face, for about 45 seconds. Everything he says is sung; everything she says is in her eyes. She never sings, in either mode, just as real females don't.
+These steps live behind the **How to mate** button; a **Now** bar says what to do at each moment. His phone shows a male *Drosophila* courting her and his male-connectome courtship circuit; hers shows her FlyWire auditory network hearing his song.
 
-These steps live behind the **How to mate** button. A **Now** bar at the top of the ritual says what to do with your phone at each moment, and what to check if something fails.
+## The pairing
 
-Each phone shows its own side. His shows a male *Drosophila* performing each step to the female in front of him: walking up (tripod gait), tapping her with a foreleg, extending one wing and vibrating it with the song, licking, mounting (`js/flyart.js`), with his courtship circuit below. Hers shows her FlyWire auditory network responding to everything he sings, live, then the courtship song she judges.
-
-## The ritual
+It is Bluetooth's "numeric comparison" pairing, with the comparing done by flies over channels a remote attacker can't reach (`js/pair.js`):
 
 | Stage | What the flies do | What the phones do |
 |---|---|---|
-| **Orient** | He sees her. | (Song only; for Sight & song, see below. In Song only his back camera stays on her face throughout, because she answers with her eyes.) Her screen shows her face, a fruit fly's head from the front. Her compound eyes carry her half of a CPace key exchange: each of 520 facets is one bit, Reed-Solomon coded, located by four ink dots (cheek bristles, median ocellus, labellum). His camera reads it. |
-| **Tap** | He taps her with a foreleg. | His half of the key exchange, sung (7.7 s). Both phones now hold the same session key, if their passphrases match. |
-| **Sing** | He extends one wing and sings: sine song, then four pulse trains. | His key-confirmation tag (16 bytes) *is* the song: 64 inter-pulse intervals of 30, 36, 42 or 48 ms. Played three octaves up for phone speakers; she decodes the intervals and replays the true-pitch song (270 Hz pulses, 155 Hz hum) into her ears. |
-| **She decides** | She slows and opens, or kicks and runs. Silently. | Her ears are FlyHarp's FlyWire auditory network. Every interval that matches the song she expects lets her song pathway's activity raise her receptivity; every wrong note is a kick. More than four wrong notes and she rejects him. Her acceptance carries her own tag (her pheromone), which he checks. |
-| **Mate** | Copulation. | The nest opens: a direct WebRTC link between the phones, for photos, files and notes, both ways, as many as you like. Its connection details (about 90 bytes each way) are sealed with the session key and travel by his song or dance and her eyes, so the link's encryption is bound to the passphrase and nobody can sit in the middle. No server relays anything. If the phones can't reach each other directly (no TURN relay), his first note still goes by sound. |
+| **Orient** | He sees her. | Her screen shows her face, a fruit fly's head from the front. Her compound eyes carry 41 bytes: a version, which links she can use, an 8-byte room code and her X25519 public key; 520 facets, Reed-Solomon coded, found by four ink dots. His camera reads it, so he has her real key: nothing on the network touched it. |
+| **Tap** | He approaches and taps her. | Both phones join the room on a small relay (a Cloudflare Worker, `worker/`), and he sends his public key. The relay is not trusted: whoever runs it could swap his key for theirs. |
+| **Sing** | He extends one wing and sings: sine song, then four pulse trains. | The song is the check code: the first 16 bytes of SHA-512 of the room and both public keys, as 64 inter-pulse intervals of 30, 36, 42 or 48 ms. Played three octaves up for phone speakers; she decodes the intervals and replays the true-pitch song into her ears. He sings in bouts until she answers. |
+| **She decides** | She slows and opens, or kicks and runs. Silently. | She computes the song from the keys she actually received. If anyone swapped his key, the song he really sings doesn't match, and she kicks. Her FlyWire song pathway must reach threshold too. Up to 4 wrong notes out of 64 are forgiven, for a noisy room. Her answer is sealed with keys only she could make from her face's key, so he knows it is hers. |
+| **Mate** | Copulation. | An end-to-end encrypted session opens (ChaCha20-Poly1305, one key and counter per direction, replays refused). On the web the phones then try a direct WebRTC data channel, whose setup travels sealed, so its DTLS fingerprints are bound to the courtship; if the networks won't connect directly within a few seconds, the session simply stays on the relay, still end-to-end encrypted. Between two iPhones the link is Multipeer from the start. Photos, files and notes, both ways, as many as you like. |
 
-### Sight and song: the dance as a code
-
-In **Sight & song** the slow turns go by sight instead, as a fruit fly's version of a QR code, and only the key song is sung (`js/visual.js`). Each phone plays a loop of cards at the bottom of its screen, four a second, and reads the other's with its front camera:
-
-- **Her eyes** (coarse facets: 18 bytes a card) show her half of the key exchange, then a sign that she has his dance and is listening, then her answer: accept plus the sealed reply for the nest, or a kick.
-- **His wing** (his extended wing, magnified, the data in its hair field: 20 bytes a card) carries his tap and the sealed way to their nest. Each card is a pose of his courtship, from real *melanogaster* behaviour: he orients, taps her with a foreleg, extends his left wing, vibrates it (pulse song), circles to her other side, extends his right wing, scissors both wings, licks her genitalia, curls his abdomen. His fly performs each pose on his screen as its card plays.
-- Every card is Reed-Solomon checked on its own and carries its place in the message, so the camera can catch them in any order. One extra card is the XOR of the rest, so a card the camera missed is rebuilt instead of waited for. The reader finds the four landmark dots at any rotation and in a mirrored view, so the phones can meet either way up.
-- **He sings while he dances**, as real males do: his key song starts the moment he has seen her, in bouts, until her eyes answer. Her phone can't judge a song before it has his tap (it doesn't yet know which song to want), so it keeps every whole bout it hears; once his dance gives her the key, her FlyWire network hears the latest bout again, replayed at double speed from that memory, and judges it. A bout heard only in part is dropped, never stitched to the next. The song stays the proof; sight carries the bulk.
-
-Altogether about eight seconds, against about a minute by sound. It needs both front cameras and a lit screen, and it has been tested between two headless browsers (`tools/sight-test.py`), not yet between two real phones: the best distance may need tuning.
-
-After a rejection she won't show herself for a while (10 s, doubling up to 10 min): courtship conditioning, and a brake on anyone guessing passphrases.
-
-## Fly song all the way through
-
-Every sound turn is courtship song, never a modem screech (`js/flysong.js`). A turn is a sine-song hum, then pulse trains broken by short hums, as a real male alternates them. Each pulse carries four bits: the interval since the last pulse (25, 30, 35 or 40 ms) and the pulse's carrier (250, 300, 350 or 400 Hz, the spread from Pslow to Pfast pulses). Everything is played three octaves up so phone speakers can carry it. Each turn is framed with a length, CRC-8 and CRC-32, rate-½ convolutionally coded and interleaved. A lost pulse is detected and treated as an erasure, an echo is ignored, and a hum re-anchors the timing. That gives about 60 bits/s: his tap is 7.7 s, his sealed link details 18 s. The key song (the 64 intervals that prove his passphrase) stays strictly *melanogaster*: one carrier, 30–48 ms intervals. Real *melanogaster* females don't sing, and neither does her phone: her answers are always in her eyes, read by his camera.
+Every primitive (X25519, SHA-512, ChaCha20-Poly1305) exists in both libsodium and Apple's CryptoKit; `data/vectors2.json` pins every derived byte so the web page and the iPhone app pair with each other.
 
 ## Her brain, and his
 
 - **Her ears and song pathway** are [FlyHarp](https://linglab.org/flyharp/)'s Tonnectome network: 4,222 neurons and 1.35 M synapses from FlyWire v783 (Johnston's organ, AMMC, saddle, wedge, AVLP and on), with FlyHarp's antenna filterbank and rate dynamics. It is not trained or fit; wiring and transmitter signs are measured, gains and time constants set by hand.
 - **OPUlation runs it in integers** (Q16 fixed point, `js/female.js`). Every constant that needs floating point is frozen in `data/female-model.json` by `tools/make-model.mjs`, so two phones, or Swift and JavaScript, compute the same brain bit for bit (`data/vectors.json`).
-- **She is individual.** Each neuron's gain varies by up to ±12.5%, drawn from a seed that both phones derive from the session key. So both phones hold the same female only when the passphrases match. His phone runs her too, and shows what she should be feeling while he sings.
+- **She is individual.** Each neuron's gain varies by up to ±12.5%, drawn from a seed that both phones derive from their shared X25519 secret. His phone runs her too, and shows what she should be feeling while he sings.
 - **Her receptivity** reads the mean activity of the 32 cells in the AVLP, PVLP and wedge that respond most to pulse song. vpoEN, the AVLP neuron that responds to song and drives vaginal plate opening in real flies, is in the network and marked. In this untrained model it barely responds, so it is shown but not used.
 - **His eye** is FlyHarp's optic lobe: the flyvis connectome-constrained model (Lappalainen et al. 2024; 45,669 neurons, 65 cell types, 721 ommatidia), run in a worker (`js/fly/`, copied from FlyHarp). While his camera reads her face, the same view is sampled onto his 721 facets and drawn as four lenses: photoreceptors, ON (Mi1, Tm3), OFF (Tm1, 2, 4, 9) and T4/T5 motion. His eye resolves about 5° per facet, so the phone camera does the actual reading; his optic lobe shows what a fly makes of the same view. Its frontal OFF and motion activity drives LC10a in his courtship circuit, standing in for the real LC10a, which lies beyond the model.
 - **His circuit is from a male connectome**: 978 neurons and 23,964 connections (synapse counts of 5 or more) cut from Janelia's male CNS connectome (v0.9; brain and nerve cord of one male, Berg et al. 2025), drawn where their cell bodies sit. It runs from LC10a (275 cells, seeing her) and vAB3 (tasting her) through P1 (148 cells) and the song descending neurons (pIP10, pMP2, pIP9) to the nerve cord's song premotor network (vPR6 and dPR1 for pulse, TN1a for sine, vMS12, and the types Lillvis et al. 2024 traced in MANC) and 67 wing motor neurons, plus the 380 neurons that link successive stages most strongly. Signs come from predicted transmitters (ACh +, GABA and glutamate −), except vAB3, whose glutamate excites P1 in recordings (Clowney et al. 2015). Dynamics are a plain rate model with one hand-set gain and time constant, as in FlyHarp. In it, seeing or tasting her wakes P1, P1 drives pIP10, and pIP10 drives the song premotor and wing motor neurons, all through the connectome's own wiring. Two things are imposed: his eye's frontal output drives LC10a, and the song's rhythm (each pulse, each hum) comes from the key and is fed into the pulse and sine premotor neurons, scaled by pIP10's activity. A rate model can't generate the rhythm itself. `tools/male-cns/` rebuilds it from the public release.
 
 ## Security, honestly
 
-- **The lock is CPace** (draft-irtf-cfrg-cpace-21, ristretto255/SHA-512, on libsodium), checked against the draft's test vectors. Someone who records every sound and photographs her face still can't test passphrases offline. They get one guess per courtship, and she grows wary after each failure.
-- **Her face is public by design.** It holds her CPace message, which is safe to show; the seed for her brain is derived only after the exchange.
-- **Her song check is a 128-bit tag compared symbol by symbol**, tolerating up to 4 wrong notes out of 64 for a noisy room, which leaves about 100 bits of security. The connectome makes the decision visible. The tag makes it binding.
+- **What protects you is the air.** Her face can only be read by a camera pointed at her screen, and his song can only be heard by a microphone near his phone. A remote attacker (including whoever runs the relay) can swap keys on the network, but then the song she expects is not the one he sings, and she kicks. The check is 128 bits compared note by note with up to 4 wrong notes forgiven, about 100 bits of margin.
+- **What it doesn't stop:** someone in the room, close enough to see her screen and sing to her phone, is courting her too. Same as Bluetooth pairing: proximity is the trust.
+- **The relay sees** that two phones met in a room, when, and how many bytes passed. It can't read or alter them. It keeps nothing.
 - Not audited.
 
 ## Files
 
 ```
 index.html  css/opulation.css
-js/cpace.js     CPace + key confirmation and derived keys (libsodium)
-js/flycode.js   the visual code: her face (fine), her eyes and his wing (coarse); draw + read at any rotation, Reed-Solomon
-js/visual.js    messages as loops of cards (with a rebuild card), and the poses of his dance
-js/protocol.js  the turns: look, tap, accept / kick, sealed link offer/answer, gift; conditioning and mated memory
-js/link.js      the nest: compact WebRTC offers/answers (~90 bytes) and file/photo/note transfer
+js/pair.js      the pairing: her face, his hello, keys, the song as check code, sealed sessions
+js/pipe.js      how sealed frames travel: the relay, then a direct WebRTC channel; the channel the chat runs on
+js/link.js      the nest: files, photos and notes in chunks, with flow control
+js/flycode.js   her face as a visual code: draw + read at any rotation, Reed-Solomon
 js/song.js      the song: tag <-> intervals, the ideal antenna frames, her listener, on-air render, pulse detector
 js/female.js    the FlyWire auditory network in Q16 integers, with a seeded personality
 js/male.js      his courtship-song circuit, from the male CNS connectome (data/male.json + male.bin)
 js/eye.js       his optic lobe (FlyHarp's flyvis model in js/fly/), fed by the camera
-js/flysong.js   fly song as a data channel: compose, render, streaming decoder
-js/modem.js     Screech's modem (copy): its convolutional code and CRCs are reused by the fly song
 js/app.js       the page
-data/           ear.json + ear.bin (from FlyHarp), female-model.json, vectors.json, male.json + male.bin (Janelia male CNS v0.9, CC BY 4.0)
-tools/          make-model.mjs, male-cns/ (cuts his circuit from the connectome), test*.mjs (npm install; npm test)
+worker/         the relay: a Durable Object per room, two sockets, frames passed through untouched
+ios/            the iPhone app (Swift): same protocol, plus Multipeer
+data/           ear.json + ear.bin (from FlyHarp), female-model.json, vectors.json, vectors2.json, male.json + male.bin (Janelia male CNS v0.9, CC BY 4.0)
+tools/          relay-dev.mjs (the relay, locally), make-model.mjs, male-cns/, test*.mjs, pair-test.py
 ```
 
-**Tests:** `npm install && npm test` runs:
-- the CPace vectors
-- the protocol
-- her face and his wing under perspective, blur, noise, rotation and mirroring; card loops read in any order
-- her determinism, including train-by-train vs all at once
-- agreement between her brain and the crypto over random sessions
-- the song through simulated echo
-- his connectome circuit: quiet at rest; seeing or tasting her wakes P1, which drives pIP10 and his wing
-- full two-phone rituals through camera and room, by song only and by sight and song.
+**Tests:** `npm install && npm test` runs the pairing protocol and its vectors (including a man in the middle swapping keys), her face under perspective, blur and noise, her brain's determinism and its agreement with the check code, the song through simulated echo, his connectome circuit, a whole ritual through camera and room, and the relay. `tools/pair-test.py` runs the real page twice in headless Chrome through a local relay (`node tools/relay-dev.mjs`): her face feeds his camera, his song her ears, until the chat opens, notes and a file cross both ways, and his leaving ends it on hers. With `NODIRECT=1` it checks the relay-only path.
 
-`tools/sight-test.py` runs the real page twice in headless Chrome (playwright) and joins them: each page's cards feed the other's camera, turned head to tail and blurred, and each page's song feeds the other's ears. It runs the ritual until the nest opens and a note crosses.
-
-`tools/eye-test.html` runs his optic lobe on a synthetic view. `tools/rtc-test.html` connects two WebRTC peers using only the compact blobs and moves a 3 MB file (open it from a local server).
-
-**iPhone:** to come, as a native Swift app that works with the web version. libsodium (swift-sodium) gives the same CPace. The female port must reproduce `data/vectors.json`.
+**Relay setup (once):** Cloudflare dashboard › Workers & Pages › Create › Import a repository › Opulation, root directory `worker`. Each push then redeploys it at `opulation-relay.samuelling.workers.dev`.

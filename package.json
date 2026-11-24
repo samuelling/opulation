@@ -2,6 +2,11 @@
   "name": "opulation",
   "private": true,
   "type": "module",
-  "scripts": { "test": "node tools/test.mjs" },
-  "devDependencies": { "libsodium-wrappers-sumo": "0.7.15" }
+  "scripts": {
+    "test": "node tools/test.mjs"
+  },
+  "devDependencies": {
+    "libsodium-wrappers-sumo": "0.7.15",
+    "ws": "^8.23.0"
+  }
 }

@@ -58,11 +58,13 @@ export class FemaleBrain {
   digest() { let h = 2166136261; const mix = (x) => { h = Math.imul(h ^ (x & 0xffff), 16777619) >>> 0; h = Math.imul(h ^ ((x / 65536) & 0xffff), 16777619) >>> 0; }; for (let i = 0; i < this.N; i++) mix(this.V[i] - Math.floor(this.V[i] / 2 ** 32) * 2 ** 32); return h >>> 0; }
 }
 
-/** Personality bytes (2 per neuron) from the 32-byte shared seed: BLAKE2b-512 in counter mode, keyed by the seed. */
+/** Personality bytes (2 per neuron) from the 32-byte shared seed: SHA-512 in counter mode,
+ *  block c = SHA-512(seed | 'OP' | c as 2 bytes little-endian). (SHA-512 so CryptoKit can match it exactly.) */
 export function personality(sodium, seed, N) {
-  const out = new Uint8Array(2 * N); let k = 0;
+  const out = new Uint8Array(2 * N); let k = 0, m = new Uint8Array(seed.length + 4); m.set(seed);
   for (let c = 0; k < out.length; c++) {
-    const blk = sodium.crypto_generichash(64, Uint8Array.of(c & 255, (c >> 8) & 255, 0x4f, 0x50), seed);
+    m[seed.length] = 0x4f; m[seed.length + 1] = 0x50; m[seed.length + 2] = c & 255; m[seed.length + 3] = (c >> 8) & 255;
+    const blk = sodium.crypto_hash_sha512(m);
     out.set(blk.subarray(0, Math.min(64, out.length - k)), k); k += 64;
   }
   return out;

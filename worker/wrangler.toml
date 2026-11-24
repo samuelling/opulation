@@ -1,0 +1,15 @@
+# OPUlation relay: introduces two phones by room code and passes their end-to-end-encrypted frames.
+# Server: https://opulation-relay.samuelling.workers.dev   (the page uses wss://…/r/<room>?role=f|m)
+# Deployed by Cloudflare's Git integration (Workers & Pages › Create › Import a repository › Opulation,
+# root directory: worker), so each push redeploys it. It keeps nothing: rooms live only while both sockets do.
+name = "opulation-relay"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]
