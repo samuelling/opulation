@@ -10,14 +10,24 @@ import AVFoundation
     @Published var role: Role = .male
     @Published var phase: Phase = .setup
     @Published var gift = ""
-    @Published var stage = "orient", bad = false, caption = "", todo = "", air = "", done = false
+    @Published var stage = "orient"
+    @Published var bad = false
+    @Published var caption = ""
+    @Published var todo = ""
+    @Published var air = ""
+    @Published var done = false
     @Published var faceBits: [UInt8]? = nil
     @Published var glimpse = false
-    @Published var R: Double = 0, notes: [Int] = Array(repeating: 0, count: 64)
+    @Published var R: Double = 0
+    @Published var notes: [Int] = Array(repeating: 0, count: 64)
     @Published var brainSnap: [UInt8] = []
     @Published var maleTick = 0
-    @Published var nestOpen = false, nestStatus = "", finished = false
-    @Published var items: [NestItem] = [], sys: [String] = [], progress: [Int: Double] = [:]
+    @Published var nestOpen = false
+    @Published var nestStatus = ""
+    @Published var finished = false
+    @Published var items: [NestItem] = []
+    @Published var sys: [String] = []
+    @Published var progress: [Int: Double] = [:]
     @Published var error: String? = nil
 
     let audio = AudioIO(), camera = FaceCamera()
