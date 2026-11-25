@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""OPUlation's app icon: her face, in the boudoir. Crushed-velvet ground, glossy compound eyes under
-heavy shadowed lids and long lashes, pouty lips where the proboscis goes, a beauty mark, a blush.
+"""OPUlation's app icon: her two compound eyes on crushed velvet, glossy, under heavy shadowed
+lids with flared lashes and winged liner. (head(), lips(), ocelli() and friends draw the fuller face.)
 
     python3 tools/make-icon.py [out.png]      (default: the iOS app icon)
 
@@ -25,18 +25,21 @@ LIP = (0.86, 0.04, 0.22)
 
 
 def velvet():
-    """crushed velvet: a plum radial glow, broken by soft folds and a diagonal sheen"""
+    """crushed velvet: a plum glow, broad crushed patches where the pile catches the light, fine grain"""
     y, x = np.mgrid[0:S, 0:S] / S
-    r = np.hypot(x - 0.5, y - 0.42)
-    base = np.clip(1.0 - r * 1.35, 0, 1) ** 1.4
-    nz = np.zeros((S, S))
-    for k, amp in ((6, 0.55), (13, 0.3), (29, 0.15)):   # folds at a few scales
-        g = np.random.default_rng(k).random((k + 1, k + 1))
-        im = Image.fromarray((g * 255).astype(np.uint8)).resize((S, S), Image.BICUBIC)
-        nz += amp * (np.asarray(im) / 255.0)
-    sheen = 0.5 + 0.5 * np.sin((x * 0.8 + y) * 34 + nz * 9)  # crushed pile catching the light
-    v = 0.25 + 0.75 * base
-    v *= 0.70 + 0.30 * nz + 0.30 * sheen ** 4
+    r = np.hypot(x - 0.5, y - 0.5)
+    base = np.clip(1.0 - r * 1.25, 0, 1) ** 1.2
+    def noise(k, seed):
+        g = np.random.default_rng(seed).random((k + 1, k + 1))
+        return np.asarray(Image.fromarray((g * 255).astype(np.uint8)).resize((S, S), Image.BICUBIC)) / 255.0
+    folds = 0.6 * noise(5, 1) + 0.4 * noise(9, 2)
+    crush = noise(14, 3)
+    sheen = (0.5 + 0.5 * np.sin((x * 0.7 + y) * 4.5 + folds * 5)) ** 2                  # broad soft sheen
+    patches = np.clip((crush - 0.45) * 3, 0, 1)                                        # crushed, light-catching patches
+    grain = np.random.default_rng(4).random((S, S))
+    grain = np.asarray(Image.fromarray((grain * 255).astype(np.uint8)).resize((S // 2, S // 2)).resize((S, S), Image.BILINEAR)) / 255.0
+    v = 0.30 + 0.55 * base
+    v *= 0.80 + 0.35 * sheen * (0.5 + patches) + 0.10 * (grain - 0.5)
     deep, mid, hi = np.array(PLUM_DEEP), np.array(PLUM), np.array(WINE)
     t = np.clip(v, 0, 1)[..., None]
     col = np.where(t < 0.6, deep + (mid - deep) * (t / 0.6), mid + (hi - mid) * ((t - 0.6) / 0.4))
@@ -71,7 +74,7 @@ def head(c):
     c.fill_preserve(); c.set_source_rgba(*INK, 0.9); c.set_line_width(6); c.stroke()
 
 
-def eye(c, cx, cy, rx, ry, tilt, lid, flip):
+def eye(c, cx, cy, rx, ry, tilt, lid, flip, lash=1.0):
     """a compound eye: glossy facets, then a heavy shadowed lid over the top, then lashes"""
     # eyeshadow bleeding up from the lid
     c.save(); ellipse(c, cx, cy - ry * 0.35, rx * 1.18, ry * 0.95, tilt)
@@ -107,11 +110,12 @@ def eye(c, cx, cy, rx, ry, tilt, lid, flip):
     c.curve_to(cx + rx * 0.4, edge + ry * 0.12, cx - rx * 0.4, edge + ry * 0.12, cx - rx - 20, edge + ry * 0.10 * flip)
     c.close_path()
     g = cairo.LinearGradient(cx, top, cx, edge + ry * 0.1)
-    g.add_color_stop_rgb(0, 0.93, 0.78, 0.80); g.add_color_stop_rgb(0.55, 0.72, 0.30, 0.58); g.add_color_stop_rgb(1, 0.40, 0.06, 0.32)
+    g.add_color_stop_rgb(0, 1.0, 0.88, 0.86); g.add_color_stop_rgb(0.5, 0.96, 0.62, 0.78); g.add_color_stop_rgb(0.85, 0.80, 0.30, 0.62); g.add_color_stop_rgb(1, 0.55, 0.10, 0.40)
     c.set_source(g); c.fill_preserve()
     c.set_source_rgba(1, 0.85, 0.95, 0.25); c.set_line_width(2); c.stroke()  # shimmer on the lid
     c.restore()
-    # outline
+    # outline, with a pink rim so she glows off the velvet
+    ellipse(c, cx, cy, rx + 6, ry + 6, tilt); c.set_source_rgba(*PINK, 0.55); c.set_line_width(10); c.stroke()
     ellipse(c, cx, cy, rx, ry, tilt); c.set_source_rgba(*INK, 1); c.set_line_width(7); c.stroke()
     # lash line along the lid edge, and long curled lashes sweeping outward
     def lid_pt(t):  # t in [0,1] from inner to outer corner (outer = away from centre)
@@ -132,7 +136,7 @@ def eye(c, cx, cy, rx, ry, tilt, lid, flip):
     for i in range(7):
         k = i / 6                                   # 0 = mid-lid, 1 = outer corner
         x, y = lid_pt(0.5 + 0.5 * k)
-        L = 50 + 95 * k ** 1.2
+        L = (50 + 95 * k ** 1.2) * lash
         th0 = 0.55 + 0.45 * k                       # leaves the lid edge outward and up...
         th1 = th0 + 0.7                             # ...and curls further up at the tip
         mx, my = x + out * L * 0.55 * math.cos(th0), y - L * 0.55 * math.sin(th0)
@@ -141,7 +145,7 @@ def eye(c, cx, cy, rx, ry, tilt, lid, flip):
         c.set_source_rgba(*INK, 1); c.set_line_width(7 + 5 * k); c.set_line_cap(cairo.LINE_CAP_ROUND); c.stroke()
     # a wing of liner off the outer corner
     x, y = lid_pt(1.0)
-    c.new_path(); c.move_to(x - out * 30, y + 2); c.curve_to(x + out * 30, y - 4, x + out * 60, y - 18, x + out * 85, y - 42)
+    c.new_path(); c.move_to(x - out * 30, y + 2); c.curve_to(x + out * 30 * lash, y - 4, x + out * 60 * lash, y - 18 * lash, x + out * 85 * lash, y - 42 * lash)
     c.set_source_rgba(*INK, 1); c.set_line_width(12); c.stroke()
 
 
@@ -208,13 +212,10 @@ def ocelli(c):
 def main():
     surf = to_surface(velvet())
     c = cairo.Context(surf); c.set_antialias(cairo.ANTIALIAS_BEST)
-    antennae(c)
-    head(c)
-    blush_and_mark(c)
-    ocelli(c)
-    eye(c, 318, 515, 170, 215, 0.12, 0.40, +1)   # her right (our left): bedroom eye
-    eye(c, 706, 515, 170, 215, -0.12, 0.47, -1)  # a touch heavier: the come-hither one
-    lips(c)
+    # just her eyes on the velvet, with a pink haze behind them
+    c.set_source(radial(c, 512, 540, 120, 560, [(0, PINK, 0.30), (1, PINK, 0)])); c.paint()
+    for cx, tilt, flip in ((318, 0.12, +1), (706, -0.12, -1)):   # mirror images: same heavy lids
+        eye(c, cx, 530, 172, 222, tilt, 0.44, flip, lash=0.72)
     buf = np.frombuffer(surf.get_data(), np.uint8).reshape(S, S, 4)
     rgb = buf[..., [2, 1, 0]].copy()
     Image.fromarray(rgb, "RGB").save(OUT, optimize=True)
